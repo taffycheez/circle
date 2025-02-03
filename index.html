@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Circular Menu</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        svg {
+            width: 500px;
+            height: 500px;
+        }
+        .segment {
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            transform-origin: 250px 250px;
+        }
+        .segment:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <svg id="menu" viewBox="0 0 500 500">
+    </svg>
+    <script>
+        function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+            let angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+            return {
+                x: centerX + (radius * Math.cos(angleInRadians)),
+                y: centerY + (radius * Math.sin(angleInRadians))
+            };
+        }
+        
+        function createSegment(startAngle, endAngle, outerRadius, innerRadius, color, link) {
+            let startOuter = polarToCartesian(250, 250, outerRadius, startAngle);
+            let endOuter = polarToCartesian(250, 250, outerRadius, endAngle);
+            let startInner = polarToCartesian(250, 250, innerRadius, endAngle);
+            let endInner = polarToCartesian(250, 250, innerRadius, startAngle);
+            
+            let largeArcFlag = (endAngle - startAngle) > 180 ? "1" : "0";
+            let pathData = `M ${startOuter.x},${startOuter.y} 
+                            A ${outerRadius},${outerRadius} 0 ${largeArcFlag},1 ${endOuter.x},${endOuter.y} 
+                            L ${startInner.x},${startInner.y} 
+                            A ${innerRadius},${innerRadius} 0 ${largeArcFlag},0 ${endInner.x},${endInner.y} 
+                            Z`;
+            
+            let segment = document.createElementNS("http://www.w3.org/2000/svg", "a");
+            segment.setAttribute("href", link);
+            
+            let path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            path.setAttribute("class", "segment");
+            path.setAttribute("d", pathData);
+            path.setAttribute("fill", color);
+            
+            segment.appendChild(path);
+            return segment;
+        }
+        
+        let colors = ["#A3B18A", "#93C5FD", "#C4B5FD", "#FDE68A", "#F9A8D4"];
+        let links = [
+            "https://www.notion.so/everyday-18f448ac544480f6b7a8cba9fe0d49d8?pvs=4", 
+            "https://www.notion.so/study-18e448ac5444802d9817d9ed3e5d006e?pvs=4", 
+            "https://www.notion.so/fun-18e448ac5444803fb5a2f48ef21d3977?pvs=4", 
+            "https://www.notion.so/admin-18e448ac544480c38d66ebf1f1d5e327?pvs=4", 
+            "https://www.notion.so/personal-18e448ac5444805ba80ee7cde85065c8?pvs=4"
+        ];
+        
+        let svg = document.getElementById("menu");
+        for (let i = 0; i < 5; i++) {
+            let segment = createSegment(i * 72, (i + 1) * 72, 200, 140, colors[i], links[i]);
+            svg.appendChild(segment);
+        }
+    </script>
+</body>
+</html>
